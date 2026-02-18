@@ -21,7 +21,8 @@ data = [
     ["AMB","Roberto Carlos","Barranquilla","Olivos II","3207728816",""],
     ["AMB","Alexander Henao","Barranquilla","Villa Nueva","3114219896",""],
     ["AMB","Padre Fernando Eliecer","Barranquilla","San Roque","3106332615",""],
-    ["AMB","Felipe Ortiz","Barranquilla","El Bosque","3012817076",""],
+    ["AMB","Felipe Ortiz","Barranquilla","El Bosque","3012817076",""], 
+    ["AMB","Edgar Rizo","Villa Karla - Soledad","3012817076",""]
 
     # --- MUNICIPALES ---
     ["Municipal","Juan Carlos Corro","Tubará","", "3215797801",""],
@@ -43,8 +44,11 @@ data = [
     ["Municipal","Linna Escorcia","Usiacurí","", "3001984631",""],
     ["Municipal","Martha Roa","Baranoa","", "3207032655",""],
     ["Municipal","Michell Chico","Baranoa","", "3183764056",""],
+    ["Municipal","Jolit Legia","Baranoa","", "3183764056",""],
     ["Municipal","Eliecer Herazo","Polonuevo","", "3135383929",""],
-    ["Municipal","Luis Sierra","Luruaco","", "3145311578",""],
+    ["Municipal","Luis Sierra","Luruaco","", "3145311578",""], 
+    ["Municipal","Arlenis Llinas","Sabana Grande","", "3145311578",""], 
+    ["Municipal","Luz Marina Morales","El Anton","", "3145311578",""]
     ["Municipal","Hilda Beltran","Luruaco","", "3164380672",""]
 ]
 
