@@ -48,7 +48,7 @@ data = [
     ["Municipal","Eliecer Herazo","Polonuevo","", "3135383929",""],
     ["Municipal","Luis Sierra","Luruaco","", "3145311578",""], 
     ["Municipal","Arlenis Llinas","Sabana Grande","", "3145311578",""], 
-    ["Municipal","Luz Marina Morales","El Anton","", "3145311578",""]
+    ["Municipal","Luz Marina Morales","El Anton","", "3145311578",""],
     ["Municipal","Hilda Beltran","Luruaco","", "3164380672",""]
 ]
 
