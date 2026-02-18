@@ -2,120 +2,58 @@ import streamlit as st
 import pandas as pd
 
 st.set_page_config(layout="wide")
-st.title("Sistema de Gestión Territorial")
+st.title("Centro de Control Territorial")
 
-# ------------------------
-# BASE DE DATOS INICIAL
-# ------------------------
+df = pd.read_csv("database.csv")
 
-data = [
-["Juan Carlos Corro","Tubará","3215797801","Activo","Media",""],
-["Librada Meza","Tubará","3172856977","Activo","Alta",""],
-["Rafael Gonzalez","Tubará","3002281833","Inactivo","Baja",""],
-["Marinella Ortiz","Santa Lucia","3216489932","Activo","Alta",""],
-["Laila Ortiz","Santa Lucia","3106481531","Activo","Media",""],
-["Malvis De la Hoz","Manatí","3233378612","Activo","Alta",""],
-["Luis Sierra","Luruaco","3145311578","Activo","Alta","Líder fuerte"],
-["Eliecer Herazo","Polonuevo","3135383929","Activo","Media",""],
-["Martha Roa","Baranoa","3207032655","Activo","Media",""],
-["Ingrid Torres","Malvinas","3207225540","Activo","Alta",""],
-["Roberto Carlos","Olivos II","3207728816","Activo","Media",""]
-]
+# ---------------- TABS
+tab1, tab2 = st.tabs(["Líderes AMB","Líderes Municipales"])
 
-df = pd.DataFrame(data, columns=[
-"Nombre","Territorio","Telefono","Estado","Prioridad","Observaciones"
-])
+# =========================
+# TAB AMB
+# =========================
 
-# ------------------------
-# SIDEBAR FILTROS
-# ------------------------
+with tab1:
 
-st.sidebar.header("Filtros")
+    st.header("Coordinación AMB")
 
-territorio = st.sidebar.selectbox(
-"Territorio",
-["Todos"] + sorted(df["Territorio"].unique())
-)
+    amb = df[df["Tipo"]=="AMB"]
 
-estado = st.sidebar.selectbox(
-"Estado",
-["Todos"] + sorted(df["Estado"].unique())
-)
+    busqueda = st.text_input("Buscar líder AMB")
 
-prioridad = st.sidebar.selectbox(
-"Prioridad",
-["Todos"] + sorted(df["Prioridad"].unique())
-)
+    if busqueda:
+        amb = amb[amb["Nombre"].str.contains(busqueda, case=False)]
 
-busqueda = st.sidebar.text_input("Buscar nombre")
+    col1,col2,col3 = st.columns(3)
+    col1.metric("Total", len(amb))
+    col2.metric("Alta prioridad", len(amb[amb["Prioridad"]=="Alta"]))
+    col3.metric("Alertas", len(amb[amb["Estado"].isin(["Alerta","Inactivo"])]))
 
-# ------------------------
-# FILTRADO
-# ------------------------
+    st.data_editor(amb, use_container_width=True, num_rows="dynamic")
 
-filtered = df.copy()
 
-if territorio != "Todos":
-    filtered = filtered[filtered["Territorio"] == territorio]
+# =========================
+# TAB MUNICIPALES
+# =========================
 
-if estado != "Todos":
-    filtered = filtered[filtered["Estado"] == estado]
+with tab2:
 
-if prioridad != "Todos":
-    filtered = filtered[filtered["Prioridad"] == prioridad]
+    st.header("Coordinación Municipal")
 
-if busqueda:
-    filtered = filtered[filtered["Nombre"].str.contains(busqueda, case=False)]
+    mun = df[df["Tipo"]=="Municipal"]
 
-# ------------------------
-# PANEL MÉTRICAS
-# ------------------------
+    busqueda2 = st.text_input("Buscar líder Municipal")
 
-col1,col2,col3 = st.columns(3)
+    if busqueda2:
+        mun = mun[mun["Nombre"].str.contains(busqueda2, case=False)]
 
-col1.metric("Total contactos", len(filtered))
-col2.metric("Activos", len(filtered[filtered["Estado"]=="Activo"]))
-col3.metric("Alta prioridad", len(filtered[filtered["Prioridad"]=="Alta"]))
+    col1,col2,col3 = st.columns(3)
+    col1.metric("Total", len(mun))
+    col2.metric("Alta prioridad", len(mun[mun["Prioridad"]=="Alta"]))
+    col3.metric("Alertas", len(mun[mun["Estado"].isin(["Alerta","Inactivo"])]))
 
-st.divider()
+    st.data_editor(mun, use_container_width=True, num_rows="dynamic")
 
-# ------------------------
-# TABLA EDITABLE
-# ------------------------
-
-st.subheader("Base Territorial Editable")
-
-edited = st.data_editor(
-filtered,
-use_container_width=True,
-num_rows="dynamic"
-)
-
-# ------------------------
-# ALERTAS
-# ------------------------
-
-st.subheader("Alertas Territoriales")
-
-alertas = edited[
-(edited["Estado"]=="Inactivo") |
-(edited["Prioridad"]=="Alta")
-]
-
-if len(alertas) > 0:
-    st.warning("Territorios que requieren atención")
-    st.dataframe(alertas, use_container_width=True)
-else:
-    st.success("Sin alertas críticas")
-
-# ------------------------
-# EXPORTAR
-# ------------------------
-
-csv = edited.to_csv(index=False).encode("utf-8")
-
-st.download_button(
-"Descargar base filtrada",
 csv,
 "base_territorial.csv",
 "texto/csv"
