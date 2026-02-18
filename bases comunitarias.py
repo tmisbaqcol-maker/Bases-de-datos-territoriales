@@ -1,51 +1,122 @@
 import streamlit as st
 import pandas as pd
-import pydeck as pdk
 
 st.set_page_config(layout="wide")
+st.title("Sistema de Gestión Territorial")
 
-st.title("Mapa Territorial de Coordinación")
+# ------------------------
+# BASE DE DATOS INICIAL
+# ------------------------
 
 data = [
-["Juan Carlos Corro","Tubará",10.8747,-74.9738,"3215797801"],
-["Librada Meza","Tubará",10.8747,-74.9738,"3172856977"],
-["Rafael Gonzalez","Tubará",10.8747,-74.9738,"3002281833"],
-["Luis Sierra","Luruaco",10.6104,-75.1432,"3145311578"],
-["Eliecer Herazo","Polonuevo",10.7802,-74.8557,"3135383929"],
-["Martha Roa","Baranoa",10.7965,-74.9150,"3207032655"],
-["Ingrid Torres","Malvinas",10.9555,-74.8251,"3207225540"],
-["Roberto Carlos","Olivos II",10.9685,-74.7813,"3207728816"]
+["Juan Carlos Corro","Tubará","3215797801","Activo","Media",""],
+["Librada Meza","Tubará","3172856977","Activo","Alta",""],
+["Rafael Gonzalez","Tubará","3002281833","Inactivo","Baja",""],
+["Marinella Ortiz","Santa Lucia","3216489932","Activo","Alta",""],
+["Laila Ortiz","Santa Lucia","3106481531","Activo","Media",""],
+["Malvis De la Hoz","Manatí","3233378612","Activo","Alta",""],
+["Luis Sierra","Luruaco","3145311578","Activo","Alta","Líder fuerte"],
+["Eliecer Herazo","Polonuevo","3135383929","Activo","Media",""],
+["Martha Roa","Baranoa","3207032655","Activo","Media",""],
+["Ingrid Torres","Malvinas","3207225540","Activo","Alta",""],
+["Roberto Carlos","Olivos II","3207728816","Activo","Media",""]
 ]
 
-df = pd.DataFrame(data, columns=["Nombre","Zona","Lat","Lon","Telefono"])
+df = pd.DataFrame(data, columns=[
+"Nombre","Territorio","Telefono","Estado","Prioridad","Observaciones"
+])
 
-zona = st.sidebar.selectbox("Zona",["Todas"] + sorted(df["Zona"].unique()))
+# ------------------------
+# SIDEBAR FILTROS
+# ------------------------
 
-if zona != "Todas":
-    df = df[df["Zona"] == zona]
+st.sidebar.header("Filtros")
 
-layer = pdk.Layer(
-    "ScatterplotLayer",
-    df,
-    get_position='[Lon, Lat]',
-    get_radius=250,
-    pickable=True,
+territorio = st.sidebar.selectbox(
+"Territorio",
+["Todos"] + sorted(df["Territorio"].unique())
 )
 
-view = pdk.ViewState(
-    latitude=df["Lat"].mean(),
-    longitude=df["Lon"].mean(),
-    zoom=9
+estado = st.sidebar.selectbox(
+"Estado",
+["Todos"] + sorted(df["Estado"].unique())
 )
 
-tooltip = {
-    "html": "<b>{Nombre}</b><br/>{Zona}<br/>{Telefono}"
-}
+prioridad = st.sidebar.selectbox(
+"Prioridad",
+["Todos"] + sorted(df["Prioridad"].unique())
+)
 
-st.pydeck_chart(pdk.Deck(
-    layers=[layer],
-    initial_view_state=view,
-    tooltip=tooltip
-))
+busqueda = st.sidebar.text_input("Buscar nombre")
 
-st.dataframe(df, use_container_width=True)
+# ------------------------
+# FILTRADO
+# ------------------------
+
+filtered = df.copy()
+
+if territorio != "Todos":
+    filtered = filtered[filtered["Territorio"] == territorio]
+
+if estado != "Todos":
+    filtered = filtered[filtered["Estado"] == estado]
+
+if prioridad != "Todos":
+    filtered = filtered[filtered["Prioridad"] == prioridad]
+
+if busqueda:
+    filtered = filtered[filtered["Nombre"].str.contains(busqueda, case=False)]
+
+# ------------------------
+# PANEL MÉTRICAS
+# ------------------------
+
+col1,col2,col3 = st.columns(3)
+
+col1.metric("Total contactos", len(filtered))
+col2.metric("Activos", len(filtered[filtered["Estado"]=="Activo"]))
+col3.metric("Alta prioridad", len(filtered[filtered["Prioridad"]=="Alta"]))
+
+st.divider()
+
+# ------------------------
+# TABLA EDITABLE
+# ------------------------
+
+st.subheader("Base Territorial Editable")
+
+edited = st.data_editor(
+filtered,
+use_container_width=True,
+num_rows="dynamic"
+)
+
+# ------------------------
+# ALERTAS
+# ------------------------
+
+st.subheader("Alertas Territoriales")
+
+alertas = edited[
+(edited["Estado"]=="Inactivo") |
+(edited["Prioridad"]=="Alta")
+]
+
+if len(alertas) > 0:
+    st.warning("Territorios que requieren atención")
+    st.dataframe(alertas, use_container_width=True)
+else:
+    st.success("Sin alertas críticas")
+
+# ------------------------
+# EXPORTAR
+# ------------------------
+
+csv = edited.to_csv(index=False).encode("utf-8")
+
+st.download_button(
+"Descargar base filtrada",
+csv,
+"base_territorial.csv",
+"texto/csv"
+)
