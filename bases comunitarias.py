@@ -22,7 +22,7 @@ data = [
     ["AMB","Alexander Henao","Barranquilla","Villa Nueva","3114219896",""],
     ["AMB","Padre Fernando Eliecer","Barranquilla","San Roque","3106332615",""],
     ["AMB","Felipe Ortiz","Barranquilla","El Bosque","3012817076",""], 
-    ["AMB","Edgar Rizo","Villa Karla - Soledad","3012817076",""]
+    ["AMB","Edgar Rizo","Villa Karla - Soledad","3012817076",""],
 
     # --- MUNICIPALES ---
     ["Municipal","Juan Carlos Corro","Tubará","", "3215797801",""],
